@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kronos — Premium Task Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Ambient glowing backdrops -->
+    <div class="ambient-glow" aria-hidden="true">
+        <div class="glow-orb orb-maroon"></div>
+        <div class="glow-orb orb-gold"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <div class="header-branding">
+                <span class="pulse-dot"></span>
+                <h1>KRONOS <span class="version">v1.0.0</span></h1>
+            </div>
+            <div class="header-status">
+                <span class="status-badge"><i class="fas fa-terminal"></i> WEB_SHELL: ACTIVE</span>
+            </div>
+        </header>
+
+        <!-- Analytics Grid -->
+        <section class="analytics-grid">
+            <!-- Productivity Circular Card -->
+            <div class="analytics-card card-productivity">
+                <h3>PRODUCTIVITY</h3>
+                <div class="score-circle-container">
+                    <svg class="score-svg" viewBox="0 0 100 100">
+                        <circle class="circle-bg" cx="50" cy="50" r="40"></circle>
+                        <circle class="circle-progress" cx="50" cy="50" r="40"></circle>
+                    </svg>
+                    <div class="score-text">
+                        <span id="prod-score-value">0%</span>
+                        <span class="score-label">RATING</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task Ratios -->
+            <div class="analytics-card card-ratios">
+                <h3>TASK SUMMARY</h3>
+                <div class="ratio-list">
+                    <div class="ratio-item">
+                        <span class="label">Total Tasks</span>
+                        <span class="value" id="stat-total">0</span>
+                    </div>
+                    <div class="ratio-item">
+                        <span class="label">Completed</span>
+                        <span class="value text-success" id="stat-completed">0</span>
+                    </div>
+                    <div class="ratio-item">
+                        <span class="label">Completion Rate</span>
+                        <span class="value text-gold" id="stat-rate">0%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Breakdown -->
+            <div class="analytics-card card-status">
+                <h3>STATUSES</h3>
+                <div class="ratio-list">
+                    <div class="ratio-item">
+                        <span class="label">Pending</span>
+                        <span class="value text-muted" id="stat-pending">0</span>
+                    </div>
+                    <div class="ratio-item">
+                        <span class="label">In Progress</span>
+                        <span class="value text-warning" id="stat-in-progress">0</span>
+                    </div>
+                    <div class="ratio-item">
+                        <span class="label">Overdue</span>
+                        <span class="value text-danger" id="stat-overdue">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Progress Chart -->
+            <div class="analytics-card card-chart">
+                <h3>7-DAY PERFORMANCE</h3>
+                <div class="bar-chart" id="weekly-chart">
+                    <!-- Dynamic chart bars injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Panel Section -->
+        <main class="main-panel">
+            <!-- Toolbar: Filter, Search and Add -->
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search tasks by title, category...">
+                </div>
+
+                <div class="filter-controls">
+                    <select id="filter-status">
+                        <option value="all">All Statuses</option>
+                        <option value="Pending">Pending</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                    <select id="filter-priority">
+                        <option value="all">All Priorities</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                    <button class="btn btn-primary" id="btn-open-add"><i class="fas fa-plus"></i> Add Task</button>
+                </div>
+            </div>
+
+            <!-- Task Table Container -->
+            <div class="table-container">
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Status</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Priority</th>
+                            <th>Due Date</th>
+                            <th class="actions-header">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-list-body">
+                        <!-- Dynamic task rows injected here -->
+                    </tbody>
+                </table>
+                <div class="empty-state" id="empty-state" style="display: none;">
+                    <i class="fas fa-tasks empty-icon"></i>
+                    <p>No tasks found. Create a new task to get started!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div class="modal-overlay" id="task-modal" aria-hidden="true">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2 id="modal-title">New Task Details</h2>
+                <button class="btn-close" id="btn-close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="task-form">
+                <input type="hidden" id="task-id">
+                
+                <div class="form-group">
+                    <label for="task-title">Title</label>
+                    <input type="text" id="task-title" required placeholder="e.g. Implement security protocols">
+                </div>
+
+                <div class="form-group">
+                    <label for="task-desc">Description</label>
+                    <textarea id="task-desc" rows="3" placeholder="Enter task specifications..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="task-priority">Priority</label>
+                        <select id="task-priority">
+                            <option value="High">High</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="task-category">Category</label>
+                        <select id="task-category">
+                            <option value="Personal">Personal</option>
+                            <option value="Work">Work</option>
+                            <option value="Study">Study</option>
+                            <option value="Health">Health</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Custom">Custom</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="custom-cat-group" style="display: none;">
+                    <label for="task-custom-cat">Custom Category Name</label>
+                    <input type="text" id="task-custom-cat" placeholder="Enter custom category name">
+                </div>
+
+                <div class="form-group">
+                    <label for="task-due">Due Date</label>
+                    <input type="date" id="task-due">
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Cancel</button>
+                    <button type="submit" class="btn btn-submit" id="btn-submit-task">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="index.js"></script>
+</body>
+</html>
